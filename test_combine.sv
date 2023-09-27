@@ -1,6 +1,6 @@
-module mult(mult_if _if);
+module dut(mult_if _if);
 
-assign _if.y = _if.a * _if.b;
+assign _if.y = _if.a * mult_if.b;
 
 endmodule
 
@@ -47,7 +47,6 @@ endclass
 
 class driver;
 virtual mult_if m_mult_vif;
-virtual clk_if m_clk_vif;
 event drv_done;
 mailbox drv_mbx;
 
@@ -60,7 +59,7 @@ task run();
       $display ("T=%0t [Driver] waiting for item ...", $time);
       drv_mbx.get(item);
       
-      @(posedge m_clk_vif.tb_clk);
+     @(item.a, item.b);
          item.print("Driver");
          m_mult_vif.a <= item.a;
          m_mult_vif.b <= item.b;
@@ -72,7 +71,6 @@ endclass
 
 class monitor;
    virtual mult_if m_mult_vif;
-   virtual clk_if m_mult_vif;
 
    mailbox scb_mbx;
 
@@ -82,7 +80,7 @@ class monitor;
       forever begin
          Packet m_pkt = new();
 
-         @(posedge m_clk_vif.tb_clk);
+        @(m_mult_vif.a, m_mult_vif.b, m_mult_vif.mult);
          
          #1;
             m_pkt.a = m_mult_vif.a;
@@ -192,6 +190,7 @@ class test;
    endtask
 endclass
 
+
 module tb;
 mult_if m_mult_if();
 my_mult u0 (m_mult_if);
@@ -209,7 +208,7 @@ endmodule
 
 
 
-interface mul_if;
+interface mult_if;
 
     logic [3:0] a;
 
@@ -218,10 +217,3 @@ interface mul_if;
     logic [7:0] y;
 
 endinterface
-
-
-
-
-
-
-
