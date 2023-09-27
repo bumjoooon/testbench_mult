@@ -264,7 +264,8 @@ interface clk_if();
 
   always #10 tb_clk = ~tb_clk;
 endinterface
-Testbench Top
+
+
 module tb;
   bit tb_clk;
 
