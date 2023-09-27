@@ -1,25 +1,23 @@
-module dut(mult_if _if);
+module my_mult(mult_if _if);
 
-assign _if.y = _if.a * mult_if.b;
+assign _if.y = _if.a * _if.b;
 
 endmodule
 
 class Packet;
-   rand bit rstn;
    rand bit[7:0] a;
    rand bit[7:0] b;
 
-   bit [7:0] mult;
+  bit [7:0] y;
 
    function void print(string tag="");
-      $display ( "T=%0t %s a=0x%0h b=0x%0h mult=0x%0h", $time, tag, a, b, mult);
+     $display ( "T=%0t %s a=0x%0h b=0x%0h mult=0x%0h", $time, tag, a, b, y);
    endfunction
 
    function void copy(Packet tmp);
       this.a = tmp.a;
       this.b = tmp.b;
-      this.rstn = tmp.rstn;
-      this.mult = tmp.mult;
+      this.y = tmp.y;
    endfunction
 
 endclass
@@ -80,12 +78,12 @@ class monitor;
       forever begin
          Packet m_pkt = new();
 
-        @(m_mult_vif.a, m_mult_vif.b, m_mult_vif.mult);
+        @(m_mult_vif.a, m_mult_vif.b, m_mult_vif.y);
          
          #1;
             m_pkt.a = m_mult_vif.a;
             m_pkt.b = m_mult_vif.b;
-            m_pkt.mult = m_mult_vif.mult;
+            m_pkt.y = m_mult_vif.y;
             m_pkt.print("Monitor");
 
             scb_mbx.put(m_pkt);
@@ -106,20 +104,14 @@ class scoreboard;
          ref_item = new();
          ref_item.copy(item);
 
-         ref_item.mult = ref_item.a * ref_item.b;
+         ref_item.y = ref_item.a * ref_item.b;
 
-         if (ref_item.carry != item.carry) begin
-            $display("[%0t] Scoreboard Error! Carry mismatch ref_item=0x%0h item=0x%0h", $time, ref_item.carry, item.carry);
-         end 
-         else begin
-            $display("[%0t] Scoreboard Pass! Carry match ref_item=0x%0h item=0x%0h", $time, ref_item.carry, item.carry);
-         end
 
-         if (ref_item.mult != item.mult) begin
-            $display("[%0t] Scoreboard Error! Multiplier mismatch ref_item=0x%0h item=0x%0h", $time, ref_item.mult, item.mult);
+        if (ref_item.y != item.y) begin
+            $display("[%0t] Scoreboard Error! Multiplier mismatch ref_item=0x%0h item=0x%0h", $time, ref_item.y, item.y);
          end
          else  begin
-            $display("[%0t] Scoreboard Pass! Multiplier match ref_item=0x%0h item=0x%0h", $time, ref_item.mult, item.mult);
+            $display("[%0t] Scoreboard Pass! Multiplier match ref_item=0x%0h item=0x%0h", $time, ref_item.y, item.y);
          end
       end
    endtask
@@ -217,3 +209,10 @@ interface mult_if;
     logic [7:0] y;
 
 endinterface
+
+
+
+
+
+
+
