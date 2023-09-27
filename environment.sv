@@ -10,35 +10,35 @@ class env;
   mailbox drv_mbx;
 
   function new();
-    d0 = new;
-    m0 = new;
-    s0 = new;
-    scb_mbx = new();
-    g0 = new;
-    drv_mbx = new;
+     d0 = new;
+     m0 = new;
+     s0 = new;
+     scb_mbx = new();
+     g0 = new;
+     drv_mbx = new;
   endfunction
 
   virtual task run();
-    // Connect virtual interface handles
-    d0.m_mult_vif = m_mult_vif;
-    m0.m_mult_vif = m_mult_vif;
-    
-    // Connect mailboxes between each component
-    d0.drv_mbx = drv_mbx;
-    g0.drv_mbx = drv_mbx;
+     // Connect virtual interface handles
+     d0.m_mult_vif = m_mult_vif;
+     m0.m_mult_vif = m_mult_vif;
 
-    m0.scb_mbx = scb_mbx;
-    s0.scb_mbx = scb_mbx;
+     // Connect mailboxes between each component
+     d0.drv_mbx = drv_mbx;
+     g0.drv_mbx = drv_mbx;
 
-    // Connect event handles
-    d0.drv_done = drv_done;
-    g0.drv_done = drv_done;
+     m0.scb_mbx = scb_mbx;
+     s0.scb_mbx = scb_mbx;
 
-    fork
-    	s0.run();
-		  d0.run();
-    	m0.run();
-      g0.run();
-    join_any
+     // Connect event handles
+     d0.drv_done = drv_done;
+     g0.drv_done = drv_done;
+
+     fork
+        s0.run();
+        d0.run();
+        m0.run();
+        g0.run();
+     join_any
   endtask
 endclass
