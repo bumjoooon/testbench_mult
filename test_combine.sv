@@ -45,6 +45,7 @@ endclass
 
 class driver;
 virtual mult_if m_mult_vif;
+virtual clk_if m_clk_vif;
 event drv_done;
 mailbox drv_mbx;
 
@@ -57,7 +58,7 @@ task run();
       $display ("T=%0t [Driver] waiting for item ...", $time);
       drv_mbx.get(item);
       
-     @(item.a, item.b);
+     @(posedge m_clk_vif.tb_clk);
          item.print("Driver");
          m_mult_vif.a <= item.a;
          m_mult_vif.b <= item.b;
@@ -69,6 +70,7 @@ endclass
 
 class monitor;
    virtual mult_if m_mult_vif;
+   virtual clk_if m_clk_vif;
 
    mailbox scb_mbx;
 
@@ -78,7 +80,7 @@ class monitor;
       forever begin
          Packet m_pkt = new();
 
-        @(m_mult_vif.a, m_mult_vif.b, m_mult_vif.y);
+        @(posedge m_clk_vif.tb_clk);
          
          #1;
             m_pkt.a = m_mult_vif.a;
@@ -125,6 +127,7 @@ class env;
   scoreboard 		s0; 			// Scoreboard connected to monitor
   mailbox 			scb_mbx; 		// Top level mailbox for SCB <-> MON
   virtual mult_if 	m_mult_vif; 	// Virtual interface handle
+  virtual clk_if  m_clk_vif         //TB clk
 
   event drv_done;
   mailbox drv_mbx;
@@ -142,6 +145,8 @@ class env;
      // Connect virtual interface handles
      d0.m_mult_vif = m_mult_vif;
      m0.m_mult_vif = m_mult_vif;
+     d0.m_clk_vif = m_clk_vif;
+     m0.m_clk_vif = m_clk_vif;
 
      // Connect mailboxes between each component
      d0.drv_mbx = drv_mbx;
@@ -184,6 +189,9 @@ endclass
 
 
 module tb;
+   bit tb_clk;
+
+clk_if m_clk_if();
 mult_if m_mult_if();
 my_mult u0 (m_mult_if);
 
@@ -192,6 +200,7 @@ initial begin
 
    t0 = new;
    t0.e0.m_mult_vif = m_mult_if;
+   t0.e0.m_clk_vif = m_clk_if;
    t0.run();
 
    #50 $finish;
@@ -210,9 +219,10 @@ interface mult_if;
 
 endinterface
 
+interface clk_if();
+   logic tb_clk;
 
+   initial tb_clk <= 0;
 
-
-
-
-
+   always #10 tb_clk = ~tb_clk;
+endinterface
