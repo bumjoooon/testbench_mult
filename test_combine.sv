@@ -127,7 +127,7 @@ class env;
   scoreboard 		s0; 			// Scoreboard connected to monitor
   mailbox 			scb_mbx; 		// Top level mailbox for SCB <-> MON
   virtual mult_if 	m_mult_vif; 	// Virtual interface handle
-  virtual clk_if  m_clk_vif         //TB clk
+  virtual clk_if  m_clk_vif;         //TB clk
 
   event drv_done;
   mailbox drv_mbx;
