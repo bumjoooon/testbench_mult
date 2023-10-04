@@ -194,6 +194,14 @@ module tb;
 clk_if m_clk_if();
 mult_if m_mult_if();
 my_mult u0 (m_mult_if);
+    
+   initial begin
+
+    $dumpfile("dump.vcd");
+
+    $dumpvars;
+
+end
 
 initial begin
    test t0;
